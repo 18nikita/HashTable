@@ -1,59 +1,86 @@
 package com.bridgelabz.hashtable;
 
-public class LinkedList<K, V> {
-	MyMapNode head;
-	MyMapNode tail;
+import java.util.ArrayList;
 
-	// creating add method
-	public void add(K key, V value) {
-		MyMapNode<K, V> myNewNode = (MyMapNode<K, V>) searchNode(key);
-		if (myNewNode == null) {
-			myNewNode = new MyMapNode<K, V>(key, value);
-			this.append(myNewNode);
-		} else {
-			myNewNode.setValue(value);
-		}
-	}
+public class LinkedList<K,V> {
+    MyMapNode head;
+    MyMapNode tail;
+    private final int numOfBuckets;
+    ArrayList<MyMapNode<K, V>> myBucketArray;
 
-	// Append the value in the linked list
-	public void append(MyMapNode<K, V> myNode) {
-		if (this.head == null)
-			this.head = myNode;
-		if (this.tail == null)
-			this.tail = myNode;
-		else {
-			this.tail.setNext(myNode);
-			this.tail = myNode;
-		}
-	}
+    public LinkedList() {
+        this.numOfBuckets = 20;
+        this.myBucketArray = new ArrayList<MyMapNode<K, V>>();
+        for (int i = 0; i < numOfBuckets; i++)
+            this.myBucketArray.add(null);
+    }
 
-	// Searching for the word in the linked list
-	public MyMapNode<K, V> searchNode(K data) {
-		MyMapNode<K, V> currentNode = head;
-		int position = 0;
-		while (currentNode != null) {
-			position++;
-			if (currentNode.getKey().equals(data)) {
-				return currentNode;
-			}
-			currentNode = currentNode.getNext();
-		}
-		return currentNode;
-	}
+    // creating add method
+    public void add(K key, V value) {
+        int index = this.getBucketIndex(key);
+        MyMapNode<K, V> myNewNode = this.myBucketArray.get(index);
+        if (myNewNode == null) {
+            myNewNode = new MyMapNode<K, V>(key, value);
+            this.myBucketArray.set(index, myNewNode);
+        }
+        myNewNode = (MyMapNode<K, V>) searchNode(key);
+        if (myNewNode == null) {
+            myNewNode = new MyMapNode<K, V>(key, value);
+            this.append(myNewNode);
+        } else {
+            myNewNode.setValue(value);
+        }
+    }
 
-	// here we are Searching for the word and getting the value from the linked list
-	public V get(K word) {
-		MyMapNode<K, V> myMapNode = searchNode(word);
-		return (myMapNode == null) ? null : myMapNode.getValue();
-	}
+    private int getBucketIndex(K word) {
+        int hashCode = Math.abs(word.hashCode());
+        int index = hashCode % numOfBuckets;
+        // System.out.println("Key: "+word+" hashcode: "+hashCode+" index: "+index);
+        return index;
+    }
 
-	// Print the linked list
-	@Override
-	public String toString() {
-		return "MyLinkedListNodes{" + head + "}";
-	}
+    // Append the value in the linked list
+    public void append(MyMapNode<K, V> myNewNode) {
+        if (this.head == null)
+            this.head = myNewNode;
+        if (this.tail == null)
+            this.tail = myNewNode;
+        else {
+            this.tail.setNext(myNewNode);
+            this.tail = myNewNode;
+        }
+    }
 
-	public void printNodes() {
-		System.out.println("My nodes: " + head);
-	}
+    // Searching for the word in the linked list
+    public MyMapNode<K, V> searchNode(K data) {
+        MyMapNode<K, V> currentNode = head;
+        int position = 0;
+        while (currentNode != null) {
+            position++;
+            if (currentNode.getKey().equals(data)) {
+                return currentNode;
+            }
+            currentNode = currentNode.getNext();
+        }
+        return currentNode;
+    }
+
+    // here we are Searching for the word and getting the value from the linked list
+    public V get(K word) {
+        int index = this.getBucketIndex(word);
+        if (this.myBucketArray.get(index) == null)
+            return null;
+        MyMapNode<K, V> myMapNode = (MyMapNode<K, V>) searchNode(word);
+        return (myMapNode == null) ? null : myMapNode.getValue();
+    }
+
+    // Print the linked list
+    @Override
+    public String toString() {
+        return "MyLinkedListNodes{" + head + "}";
+    }
+
+    public void printNodes() {
+        System.out.println("My nodes: " + head);
+    }
 }
